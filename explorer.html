@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="BI Migration Portal">
+<meta name="author" content="Mark Jones">
+
+
+<!-- STYLE -->
+<link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
+<link rel="stylesheet" href="style/jquery-ui.css">
+<link rel="stylesheet" href="style/main.css">
+<link href="style/lightbox.css" rel="stylesheet">
+<link rel="icon" href="images/BQLogo.png">
+<style>
+#dialog-form {font-size: 14px;}
+#dialog-form input.text { font-size: 14px; margin-bottom:15px; width:280px; padding: .4em; }
+#dialog-form fieldset { padding:0; border:0; margin-top:15px; }
+#dialog-form fieldset text {width: 240px; height: 150px;}
+.ui-dialog {font-size:12px;}
+.ui-dialog .ui-dialog-title {font-size:12px;}
+.ui-dialog .ui-state-error { padding: .3em; }
+.validateTips { 
+	font-size: 12px;
+	margin: 0px;
+	border: 1px solid transparent; 
+	padding: 0.2em; 
+}
+
+.ui-dialog-titlebar-close {
+  visibility: hidden;
+  float: left;
+  width: 400px;
+}
+
+
+#dialog-message-firstvisit a:focus {
+	outline: 0 !important;
+    border:0 none !important;
+}
+#dialog-message-firstvisit a {
+	text-decoration: none;
+}
+.found text {
+	fill: #FF6600; 
+	stroke: #FF6600;
+	font-size: 16px;
+	text-anchor: middle;
+	font-weight: bold;
+	pointer-events: none;
+	shape-rendering: crispEdges;  
+ 
+}
+.found circle {
+	stroke: #FF6600;
+	fill:rgb(255,102,0);
+}
+
+.notFound text {
+  fill: #DDDDDD; //grey
+  stroke: #DDDDDD;
+  font-size: 16px;
+  font-weight: bold;
+  pointer-events: none;
+  text-anchor: middle;
+  shape-rendering: crispEdges;
+  
+}
+line.linkFound {
+	fill: none;
+	stroke: #FF6600;
+	stroke-width: 2px;
+}
+line.linkNotFound {
+	fill: none;
+	stroke: #DDDDDD;
+	stroke-width: 2px;
+}
+
+#dialog-wrapper {
+	display: none;
+}
+</style>
+
+</head>
+<body>
+<div id="navbar">
+	<img src="images/BQLogo.png" alt="B&Q" style="width:30px;height:30px; float: left; border:0px solid #FFFFFF; margin: 0px 0px 0px 0px;">
+	<div id="navtitle">BI Migration Portal</div>
+	<div id="navitem"><a class="inactivenav" href="help.html">Help</a></div>
+	<div id="navitem"><a class="inactivenav" href="#">Progress</a></div>
+	<div id="navitem"><a class="inactivenav" href="downloads.html">Downloads</a></div>
+	<div id="navitem"><a class="inactivenav" href="subscriptions.html">Subscriptions</a></div>
+	<div id="navitem"><a class="inactivenav" href="definitions.html">Definitions</a></div>
+	<div id="navitem"><a class="activenav" href="explorer.html">Explorer</a></div>
+	<div class='spacer' style='clear: both;'></div>
+</div>
+<div id="leftdiv">
+	<div id="lefttitlediv">Explorer</div>
+	<div id="vizdiv">
+		<div id="vizgadget">
+			<button id="reset" type="button" onClick="reset()">Reset</button>
+			<button id="reset" type="button" onClick="showAll()">Explode</button>
+			<div class="gadgetSpacer"></div>
+			<div id="drillLevel">
+				<label>Drill Level:</label><div id="slider"></div>
+			</div>
+			<fieldset id="filtermenu">
+				<label for="filter">Filter:</label>
+				<select name="filter" id="filter">
+					<option selected="selected">All</option>
+					<option>No B&amp;Q</option>
+					<option>Commercial</option>
+					<option>Finance</option>
+					<option>Stores</option>
+				</select>
+			</fieldset>
+			<div class="gadgetSpacer"></div>
+			<div id="overlayOptions">
+				<label>Overlay:</label>
+				<label>Risk<input id="overlayRisk" type="checkbox"/></label>
+				<label>Status<input id="overlayStatus" type="checkbox" checked="checked"/></label>
+			</div>
+			<div class="gadgetSpacer"></div>
+			<div id="searchBox">
+				<label>Search:</label> 
+				<input type="text" id="searchInput">
+			</div>
+			<!-- not implemented
+			<div id="zoombuttons">
+				<label>Zoom:</label>
+				<button id="zoom_out">-</button>
+				<button id="zoom_in">+</button>
+			</div>
+			-->
+			<div class='spacer' style='clear: both;'></div>
+		</div>
+		<div id="vizstats">Stats go here</div>
+		<div id="vizchart"></div>
+
+	</div>
+</div>
+<div id="rightdiv">
+	<div id="righttitlediv">Instructions</div>
+	<div class='nodecard'>Click on a node for more information, this also expands any child nodes, click an active node again to collapse</div>
+	<div class='nodecard'>Nodes can be dragged around to untangle the visualization, expanded nodes become 'sticky' and will hold their position when dragged</div>
+	<div class='nodecard'>Click and hold in white space and drag to pan around</div>
+	<div class='nodecard'>Mousewheel to zoom in</div>
+</div>
+<!-- first visit -->
+<div id="dialog-wrapper">
+<div id="dialog-message-firstvisit" title="Non-Chrome browser detected">
+  <p>Please make sure you are using Chrome to view this website</p>
+  <p>You can get the install file  <a href="http://ap170-old.uk.b-and-q.com/BI_Migration/chrome/ChromeSetup(1).exe" target="_blank"><span style="color: #FF7700; font-weight: bold;">here</span></a></p>
+  <p>Click "Run" in the IE prompt or navigate to the file and run the exe</p>
+  <p>When prompted by windows for your username and password, click "No"</p>
+  <p>At the Chrome prompt choose "Yes" to install without administrative privileges</p>  
+</div>
+</div>
+
+<footer>
+<!-- SCRIPTS -->
+<script src="//code.jquery.com/jquery-1.10.2.js"></script>
+<script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+<script>
+//dialogue message
+$(document).ready(function(){
+	$( "#dialog-message-firstvisit" ).dialog({
+		autoOpen: false,
+		modal: true
+	});
+	
+	var isChrome;
+	isChrome = !!window.chrome;
+	if(isChrome === false){
+		console.log("Dialog open attempt");
+		$( "#dialog-message-firstvisit" ).dialog( "open" );
+	}	
+	  
+	  
+});
+</script>
+<script>$.ajaxSetup({ cache: false }); //disable browser caching</script>
+<!--[if !ie]>-->
+    <script src="scripts/d3.v3.min.js"></script>
+	<script src="scripts/drill.js"></script>
+<!--<![endif]-->
+
+<script src="scripts/lightbox.js"></script>
+
+<script>
+$(function() {
+    $( "#menu" ).selectmenu();
+});
+
+$("#filter").bind( "change", function() {
+  update(0);
+  update(1);
+  update(0);
+  update(1);
+});
+
+$(window).resize(function () {
+	update(0);
+}); 
+
+$(function() {
+    $( "#slider" ).slider({
+      value:1,
+      min: 1,
+      max: 4,
+      step: 1,
+      slide: function( event, ui ) {
+		$( "#amount" ).val( "$" + ui.value );
+      }
+    });
+    $( "#amount" ).val( "$" + $( "#slider" ).slider( "value" ) );
+});
+  
+$("#slider").on("slidechange", function( event, ui ) {
+	update(0);
+	update(1);
+	update(0);
+	update(1);
+} );
+
+$('#overlayRisk').change(function() {
+	if($('#overlayStatus').prop('checked')) {
+		$('#overlayStatus').prop('checked',false)
+	}
+	var currentDrill = $("#slider").slider("value")
+	if(currentDrill > 1){
+		$("#slider").slider("value",currentDrill-1);
+		$("#slider").slider("value",currentDrill);
+	} else {
+		$("#slider").slider("value",currentDrill+1);
+		$("#slider").slider("value",currentDrill);
+	}
+});
+
+$('#overlayStatus').change(function() {
+	if($('#overlayRisk').prop('checked')) {
+		$('#overlayRisk').prop('checked',false)
+	}
+	var currentDrill = $("#slider").slider("value")
+	if(currentDrill > 1){
+		$("#slider").slider("value",currentDrill-1);
+		$("#slider").slider("value",currentDrill);
+	} else {
+		$("#slider").slider("value",currentDrill+1);
+		$("#slider").slider("value",currentDrill);
+	}
+});
+
+// logs existing user visit to db on page load
+$(document).ready(function(){
+        var clickBtnValue = $(this).val();
+        var ajaxurl = 'mapLanding.php',
+        data =  {'action': clickBtnValue};
+        $.post(ajaxurl, data, function (response) {
+            // Response div goes here.
+            //alert("ajax post successful");
+        });
+	
+});
+
+// search highlighter
+$("#searchInput").keyup(function(e) {
+	searchHighlight();
+	//
+});
+
+function searchHighlight(){
+	var searchText = $("#searchInput").val();
+	if(searchText != ""){
+		$("g").each(function(i,o){
+			// nodes
+			if($(this).attr("class") == "activeNode" || $(this).attr("class") == "inactiveNode" || $(this).attr("class") == "found" || $(this).attr("class") == "notFound"){	
+				if($(this).find("text").text().search(new RegExp(searchText, "i")) >= 0 ){
+					$(this).attr("class", "found");
+					$(this).find("circle").attr("style","fill:rgb(255,102,0);");
+				} else {
+					$(this).attr("class", "notFound");
+					$(this).find("circle").attr("style","fill:rgb(220,220,220);");
+				}	
+			}
+			// if children have match
+			var childCollection = $(this).attr("data-children");
+			if(childCollection){
+				if(childCollection.search(new RegExp(searchText, "i")) >= 0 ){
+					$(this).attr("class", "found");
+					$(this).find("circle").attr("style","fill:rgb(255,102,0);");
+				}
+			}
+			// reports
+			if($(this).attr("class") == "activeNodeReport" || $(this).attr("class") == "inactiveNodeReport"){	
+				if($(this).find("text").text().search(new RegExp(searchText, "i")) >= 0 ){
+					$(this).find("image").attr("href", "images/ReportOrange.png");
+					
+				} else {
+					$(this).find("image").attr("href", "images/ReportGrey.png");					
+				}	
+			}
+			// links
+			$("line").each(function(i,o){
+				var linkTargetChildren = $(this).attr("data-targetchildren");
+				var linkTarget = $(this).attr("target");
+				if(linkTargetChildren != null && linkTarget != null){
+					if(linkTarget.search(new RegExp(searchText, "i")) >= 0 || linkTargetChildren.search(new RegExp(searchText, "i")) >= 0 ){
+						$(this).attr("class", "linkFound");
+					} else {
+						$(this).attr("class", "linkNotFound");
+					}	
+				} else if(linkTargetChildren != null){
+					if(linkTargetChildren.search(new RegExp(searchText, "i")) >= 0 ){
+						$(this).attr("class", "linkFound");
+					} else {
+						$(this).attr("class", "linkNotFound");
+					}
+				} else if(linkTarget != null){
+						if(linkTarget.search(new RegExp(searchText, "i")) >= 0 ){
+							$(this).attr("class", "linkFound");
+						} else {
+							$(this).attr("class", "linkNotFound");
+						}	
+				}
+			});
+		});
+	} else {
+		// reset classes
+		$("g").each(function(i,o){
+			// nodes
+			if( $(this).attr("class") == "found" || $(this).attr("class") == "notFound" ){	
+				$(this).attr("class", "inactiveNode");
+			} 
+			// links
+			$("line").each(function(i,o){	
+				$(this).attr("class", "link");
+			});
+		});
+		// reports
+		for(n in node[0]){
+			if(n != "parentNode"){
+				if( node[0][n].__data__.type == "report"  ){
+					if($('#overlayStatus').prop('checked')){
+						if(node[0][n].__data__.status == "live_decom"){
+							$(node[0][n]).find("image").attr("href", "images/ReportAmber.png");
+						
+						} else if(node[0][n].__data__.status == "live_transit"){
+							$(node[0][n]).find("image").attr("href", "images/ReportBlue.png");
+						
+						} else if(node[0][n].__data__.status == "live_easier"){
+							$(node[0][n]).find("image").attr("href", "images/ReportGreen.png");
+						
+						} else if(node[0][n].__data__.status == "decom"){
+							$(node[0][n]).find("image").attr("href", "images/ReportGrey.png");
+						
+						}			
+					} else if($('#overlayRisk').prop('checked')){
+						if(node[0][n].__data__.risk == "Red"){
+							$(node[0][n]).find("image").attr("href", "images/ReportRed.png");
+						
+						} else if(node[0][n].__data__.risk == "Amber"){
+							$(node[0][n]).find("image").attr("href", "images/ReportAmber.png");
+						
+						} else if(node[0][n].__data__.risk == "Green"){
+							$(node[0][n]).find("image").attr("href", "images/ReportGreen.png");
+						
+						} 		
+					}
+				} else {
+					
+				}
+			}
+		}
+		
+	update(0); // must sit in reset loop
+	}
+	
+}
+	
+
+
+
+
+
+</script>
+
+</footer>
+</body>
+</html>
