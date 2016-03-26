@@ -219,6 +219,7 @@ $(function() {
 });
   
 $("#slider").on("slidechange", function( event, ui ) {
+	// not efficient -  need to refactor
 	update(0);
 	update(1);
 	update(0);
@@ -260,7 +261,6 @@ $(document).ready(function(){
         data =  {'action': clickBtnValue};
         $.post(ajaxurl, data, function (response) {
             // Response div goes here.
-            //alert("ajax post successful");
         });
 	
 });
@@ -268,7 +268,6 @@ $(document).ready(function(){
 // search highlighter
 $("#searchInput").keyup(function(e) {
 	searchHighlight();
-	//
 });
 
 function searchHighlight(){
