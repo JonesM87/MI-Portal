@@ -127,29 +127,6 @@ function NodeFilter(){
 
 	nodes = filteredNodes;
 	
-	/*if(click !== 1){
-	// swap out center node
-	var cNode = null;
-	var spliceIndex = null;
-	
-	nodes.some(function (o) {
-		if (o.name === "B&Q" || o.name === "Stores" || o.name == "Commercial" || o.name === "Finance") {
-			cNode = o;
-			spliceIndex = cNode.index;
-			return true; // short circuits loop 
-		}
-	});
-
-	
-		if(cNode.name !== universe){ 
-			if(universe === "Commercial") cNode.name = "Commercial";
-			if(universe === "Finance") cNode.name = "Finance";
-			if(universe === "Stores") cNode.name = "Stores";
-			nodes.splice(spliceIndex,1,cNode);
-			console.log(cNode);
-		}
-		*/ 
-			
 		tLD = d3.layout.tree().links(nodes);
 		
 		// loop through and dynamically generate links based on nodes
@@ -187,7 +164,7 @@ function NodeFilter(){
 }
 
 function update(click) {
-	//console.log("Update("+click+") called");
+
 	unDrillRecursion = true;
 	unDrillRecursion2 = 2;
 	drillLevel = $("#slider").slider("values", "ui-values[0]");
@@ -200,29 +177,19 @@ function update(click) {
 		// restate nodes & links based on children
 		nodes = flatten(root);	
 		links = d3.layout.tree().links(nodes);
-		// data changed, re-start force layout
-		/*force.nodes(nodes)
-			.links(links)
-			.start();
-		*/
+
 	}
 	initialDraw = 0;
 	
-	// !FUCKS up the drill control and filter
 	if (click === 0 && initialDraw === 0){ 
-		//console.log("no node click undrill");
-		
+
 		unDrill(root, drillLevel);
 		NodeFilter();
 		// restate nodes & links based on children
 		nodes = flatten(root);
 		links = d3.layout.tree().links(nodes);
 		
-		// data changed, re-start force layout
-		/*force.nodes(nodes)
-			.links(links)
-			.start();	
-		*/
+
 	}
 	// update links
 	try {
@@ -790,9 +757,6 @@ function showAll(){
 	initialDraw = 0;
 	$("#slider").slider('value',4);
 	load();
-	//zoom out
-	//container.transition().duration(50).attr("transform", "translate("+100+","+0+") scale (0.4) ");
-	//container.attr("transform", "translate("+200+","+200+") scale (0.3) ");
 	container.transition().duration(750)
 		.call(zoom.translate(200, 200).scale(0.3));
 }
@@ -815,7 +779,7 @@ $("g").each(function(i,o){
 });
 
 d.fixed = true; // pin current node
-//if(d._children) console.log("_children");
+
 
 if(node !== aNode) {
 	//console.log("node !== aNode");
@@ -976,20 +940,7 @@ if(node !== aNode) {
 		$("#rightdiv").html(content);
 		$("#rightdiv").show("clip", 100);	
 		
-		/* is this ever even called?
-		if(node !== aNode){
-			console.log("aNode !== node");
-			if($(aNode).attr("class") == "activeNode"){
-				$(aNode).attr("class","inactiveNode")
-			}
-			if($(aNode).attr("class") == "activeNodeReport" ){
-				$(aNode).attr("class","inactiveNodeReport")
-			} else {
-				
-			}
-			aNode = undefined;
-		}
-		*/
+
 	}
 	
 	// NODE
