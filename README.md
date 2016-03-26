@@ -4,7 +4,7 @@
 SQL backend, PHP/HTML/JS front end, D3.js for visualisations
 
 #####Node Map
-The node map allows users to at a glance see the status of various systems and reports, clicking a node expands its child nodes and brings up key information in the right panel such as report owner, migration plan, report screenshot etc. Users can filter the visualisation by department removing unwanted nodes/paths, drill down one node at a time by clicking or can use the search function which highlights the path to the search results as they type. The data driving the portal comes from the teams live Excel working file which when saved fires off a VBA module which creates a JSON file and uploads the data to the web server meaning the information is always up to date. 
+The node map allows users to at a glance see the status of various systems and reports, clicking a node expands its child nodes and brings up key information in the right panel such as report owner, migration plan, report screenshot etc. Users can filter the visualisation by department removing unwanted nodes/paths, drill down one node at a time by clicking or can use the search function which highlights the path to the search results as they type. The data driving the portal comes from the teams live Excel working file which when saved fires off a VBA module which creates a JSON file and uploads the data to the web server meaning the information is always up to date. The visualisation is dynamically drawn client side using D3.
 
 ![node map 1](https://github.com/JonesM87/MI-Portal/blob/master/node1.png)
 ![node map 2](https://github.com/JonesM87/MI-Portal/blob/master/node2.png)
